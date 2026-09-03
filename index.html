@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kas Rohis - SMKN 1 Wajo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-down {
+            animation: fadeInDown 1s ease-out forwards;
+        }
+        .animate-fade-up {
+            animation: fadeInUp 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-950 text-white font-sans flex items-center justify-center min-h-screen p-4">
+
+    <!-- Container Kartu Utama dengan Efek Glassmorphism -->
+    <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl shadow-2xl p-8 max-w-md w-full text-center relative overflow-hidden">
+        
+        <!-- Ornamen Cahaya Background -->
+        <div class="absolute -top-12 -left-12 w-36 h-36 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -bottom-12 -right-12 w-36 h-36 bg-teal-400/20 rounded-full blur-2xl pointer-events-none"></div>
+
+        <!-- Bagian Logo Rohis SMKN 1 Wajo (Animasi Turun dari Atas) -->
+        <div id="logo-section" class="animate-fade-down">
+            <div class="relative w-36 h-36 mx-auto mb-6 group">
+                <!-- Efek Glow di Belakang Logo -->
+                <div class="absolute inset-0 bg-emerald-400 rounded-full blur-xl opacity-40 group-hover:opacity-75 transition duration-500"></div>
+                
+                <!-- Lingkaran Logo -->
+                <div class="relative w-36 h-36 bg-white rounded-full flex items-center justify-center shadow-xl border-4 border-emerald-400/80 overflow-hidden p-2 transform transition duration-500 hover:scale-105">
+                    <!-- Menggunakan link logo dari ImgBB -->
+                    <img src="https://i.ibb.co.com/KpLNtCNf/logo.png" alt="Logo Rohis SMKN 1 Wajo" class="w-full h-full object-contain">
+                </div>
+            </div>
+
+            <h1 class="text-3xl font-black tracking-wider text-white mb-1 drop-shadow-md">ROHIS</h1>
+            <h2 class="text-base font-bold text-emerald-300 tracking-wide">SMKN 1 WAJO</h2>
+            <div class="w-16 h-1 bg-emerald-400 mx-auto my-3 rounded-full"></div>
+            <p class="text-emerald-100/80 text-xs font-medium tracking-wide">Sistem Keuangan & Digitalisasi Kas Masjid</p>
+        </div>
+
+        <!-- Bagian Pilihan Menu (Muncul dengan Animasi dari Bawah) -->
+        <div id="menu-section" class="mt-8 space-y-4 hidden animate-fade-up">
+            <p class="text-xs font-semibold text-emerald-200 uppercase tracking-widest mb-4">Silakan Pilih Menu</p>
+            
+            <a href="data.html" class="group flex items-center justify-center space-x-3 w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-emerald-900/50 transition-all duration-300 transform hover:-translate-y-0.5">
+                <span class="text-xl">📊</span>
+                <span class="text-sm tracking-wide">Lihat Data & Keuangan</span>
+            </a>
+            
+            <a href="bayar.html" class="group flex items-center justify-center space-x-3 w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-emerald-950 font-extrabold py-3.5 px-6 rounded-2xl shadow-lg shadow-amber-950/30 transition-all duration-300 transform hover:-translate-y-0.5">
+                <span class="text-xl">💳</span>
+                <span class="text-sm tracking-wide">Pembayaran Online (QRIS / DANA)</span>
+            </a>
+        </div>
+
+        <!-- Footer Kecil -->
+        <div class="mt-8 text-[10px] text-emerald-300/50 tracking-wider">
+            &copy; 2026 Rohis SMKN 1 Wajo
+        </div>
+
+    </div>
+
+    <script>
+        // Jeda waktu sebelum menu pilihan muncul dengan animasi halus
+        setTimeout(() => {
+            document.getElementById('menu-section').classList.remove('hidden');
+        }, 1200);
+    </script>
+</body>
+</html>
