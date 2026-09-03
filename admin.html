@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Kas Rohis SMKN 1 Wajo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen pb-10">
+
+    <!-- MODAL LOGIN PIN -->
+    <div id="login-modal" class="fixed inset-0 bg-emerald-950 bg-opacity-90 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full text-center">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-900 rounded-full flex items-center justify-center mx-auto text-2xl font-bold mb-4 shadow-inner">
+                🔒
+            </div>
+            <h2 class="text-xl font-bold text-emerald-900 mb-1">Akses Khusus Pengurus</h2>
+            <p class="text-xs text-gray-500 mb-4">Masukkan PIN Admin untuk masuk ke panel pengaturan.</p>
+            
+            <form id="form-login" class="space-y-3">
+                <input type="password" id="input-pin" placeholder="Masukkan PIN (Default: 1234)" required class="w-full text-center tracking-widest text-lg border rounded-xl p-3 focus:ring-2 focus:ring-emerald-500 outline-none">
+                <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow transition">
+                    Buka Panel
+                </button>
+            </form>
+            <div class="mt-4">
+                <a href="data.html" class="text-xs text-gray-400 hover:underline">← Kembali ke Halaman Utama</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- KONTEN UTAMA ADMIN PANEL -->
+    <div id="admin-content" class="hidden">
+        <nav class="bg-emerald-900 text-white p-4 shadow-md flex justify-between items-center">
+            <a href="data.html" class="text-sm bg-emerald-800 hover:bg-emerald-700 px-3 py-1 rounded-lg transition">← Lihat Data</a>
+            <h1 class="font-bold text-base md:text-lg">Panel Pengurus Rohis</h1>
+            <button onclick="logoutAdmin()" class="text-xs bg-red-600 hover:bg-red-500 px-3 py-1.5 rounded-lg font-bold transition">Keluar</button>
+        </nav>
+
+        <div class="max-w-xl mx-auto p-4 mt-4 space-y-6">
+            
+            <!-- 1. Form Atur Nominal Iuran -->
+            <div class="bg-white rounded-2xl shadow-sm p-5 border-t-4 border-emerald-600">
+                <h3 class="font-bold text-emerald-900 mb-3 text-sm md:text-base">⚙️ Tetapkan Nominal Iuran Wajib</h3>
+                <form id="form-atur-iuran" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Nominal (Rp)</label>
+                        <input type="number" id="setting-nominal" placeholder="Contoh: 5000" required class="w-full border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Periode Pembayaran</label>
+                        <select id="setting-periode" class="w-full border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="Per Minggu">Per Minggu</option>
+                            <option value="Per Bulan">Per Bulan</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-600 text-white font-bold py-2.5 rounded-xl transition text-sm">
+                        Simpan Aturan Iuran
+                    </button>
+                </form>
+            </div>
+
+            <!-- 2. Form Tambah / Catat Pembayaran Anggota Manual -->
+            <div class="bg-white rounded-2xl shadow-sm p-5 border-t-4 border-emerald-500">
+                <h3 class="font-bold text-emerald-900 mb-3 text-sm md:text-base">➕ Catat Pembayaran Anggota (Manual)</h3>
+                <form id="form-tambah-bayar" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Nama Anggota</label>
+                        <input type="text" id="bayar-nama" placeholder="Contoh: Ahmad Fauzi" required class="w-full border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Kelas</label>
+                        <input type="text" id="bayar-kelas" placeholder="Contoh: X TKJ 1" required class="w-full border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Jumlah Pembayaran (Rp)</label>
+                        <input type="number" id="bayar-jumlah" placeholder="Contoh: 5000" required class="w-full border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Tanggal Bayar</label>
+                        <input type="date" id="bayar-tgl" required class="w-full border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition text-sm">
+                        Simpan Pembayaran Anggota
+                    </button>
+                </form>
+            </div>
+
+            <!-- 3. Daftar & Kelola / Hapus Pembayaran Masuk -->
+            <div class="bg-white rounded-2xl shadow-sm p-5 border-t-4 border-blue-600">
+                <h3 class="font-bold text-blue-900 mb-3 text-sm md:text-base">📋 Daftar & Kelola Pembayaran Masuk</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-blue-50 text-blue-900 text-xs">
+                                <th class="p-2.5 rounded-l-lg">Nama / Kelas</th>
+                                <th class="p-2.5">Jumlah</th>
+                                <th class="p-2.5">Tanggal</th>
+                                <th class="p-2.5 rounded-r-lg text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-kelola-pembayaran" class="text-xs divide-y divide-gray-200">
+                            <tr><td colspan="4" class="p-3 text-center text-gray-400">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. Form Input Amplop Jumat -->
+            <div class="bg-white rounded-2xl shadow-sm p-5 border-t-4 border-amber-500">
+                <h3 class="font-bold text-amber-900 mb-3 text-sm md:text-base">✉️ Input Amplop Jumat / Sholat Dzuhur</h3>
+                <form id="form-amplop" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Keterangan / Sesi</label>
+                        <input type="text" id="amplop-ket" placeholder="Contoh: Infaq Amplop Sholat Jumat" required class="w-full border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Tanggal Kegiatan</label>
+                        <input type="date" id="amplop-tgl" required class="w-full border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Total Perolehan (Rp)</label>
+                        <input type="number" id="amplop-jumlah" placeholder="Contoh: 150000" required class="w-full border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-emerald-950 font-bold py-2.5 rounded-xl transition text-sm">
+                        Simpan Amplop Masuk
+                    </button>
+                </form>
+            </div>
+
+            <!-- 5. Form Input Pengeluaran Kas -->
+            <div class="bg-white rounded-2xl shadow-sm p-5 border-t-4 border-red-500">
+                <h3 class="font-bold text-red-900 mb-3 text-sm md:text-base">💸 Catat Pengeluaran Kas</h3>
+                <form id="form-keluar" class="space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Keperluan Pengeluaran</label>
+                        <input type="text" id="keluar-ket" placeholder="Contoh: Beli Konsumsi Kajian" required class="w-full border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Jumlah Biaya (Rp)</label>
+                        <input type="number" id="keluar-jumlah" placeholder="Contoh: 50000" required class="w-full border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded-xl transition text-sm">
+                        Simpan Pengeluaran
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Script Koneksi Firebase Real-Time -->
+    <script>
+        // URL Database Firebase Anda
+        const firebaseConfig = { 
+            databaseURL: "https://rohis-kas-default-rtdb.asia-southeast1.firebasedatabase.app/" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const ADMIN_PIN = "2911";
+
+        if (sessionStorage.getItem("admin_logged_in") === "true") {
+            bukaPanelAdmin();
+        }
+
+        document.getElementById('form-login').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const inputPin = document.getElementById('input-pin').value;
+            if (inputPin === ADMIN_PIN) {
+                sessionStorage.setItem("admin_logged_in", "true");
+                bukaPanelAdmin();
+            } else {
+                alert("PIN salah!");
+                document.getElementById('input-pin').value = '';
+            }
+        });
+
+        function bukaPanelAdmin() {
+            document.getElementById('login-modal').classList.add('hidden');
+            document.getElementById('admin-content').classList.remove('hidden');
+            document.getElementById('amplop-tgl').valueAsDate = new Date();
+            document.getElementById('bayar-tgl').valueAsDate = new Date();
+            muatDataKelolaPembayaran();
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem("admin_logged_in");
+            location.reload();
+        }
+
+        // Simpan Pembayaran Anggota Manual oleh Admin
+        document.getElementById('form-tambah-bayar').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nama = document.getElementById('bayar-nama').value;
+            const kelas = document.getElementById('bayar-kelas').value;
+            const jumlah = document.getElementById('bayar-jumlah').value;
+            const tanggalInput = document.getElementById('bayar-tgl').value;
+            const tanggal = new Date(tanggalInput).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            db.ref('pembayaran').push({ nama, kelas, jumlah: Number(jumlah), tanggal }, (err) => {
+                if(!err) {
+                    alert("Data pembayaran anggota berhasil dicatat!");
+                    document.getElementById('form-tambah-bayar').reset();
+                    document.getElementById('bayar-tgl').valueAsDate = new Date();
+                } else {
+                    alert("Gagal menyimpan data.");
+                }
+            });
+        });
+
+        // Tampilkan & Kelola Data Pembayaran Anggota di Admin
+        function muatDataKelolaPembayaran() {
+            db.ref('pembayaran').on('value', (snapshot) => {
+                const tbody = document.getElementById('tabel-kelola-pembayaran');
+                tbody.innerHTML = '';
+                
+                if (!snapshot.exists()) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-400">Belum ada data pembayaran masuk.</td></tr>`;
+                    return;
+                }
+
+                snapshot.forEach((child) => {
+                    const id = child.key;
+                    const data = child.val();
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-2.5 font-medium text-gray-800">${data.nama}<br><span class="text-gray-400 text-[10px]">${data.kelas}</span></td>
+                            <td class="p-2.5 text-emerald-600 font-bold">Rp ${Number(data.jumlah).toLocaleString()}</td>
+                            <td class="p-2.5 text-gray-500">${data.tanggal}</td>
+                            <td class="p-2.5 text-center">
+                                <button onclick="hapusPembayaran('${id}')" class="bg-red-100 text-red-700 hover:bg-red-200 px-2 py-1 rounded text-[10px] font-bold transition">Hapus</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+        }
+
+        function hapusPembayaran(id) {
+            if (confirm("Yakin ingin menghapus data pembayaran ini?")) {
+                db.ref('pembayaran/' + id).remove().then(() => {
+                    alert("Data berhasil dihapus.");
+                });
+            }
+        }
+
+        // Simpan Aturan Iuran
+        document.getElementById('form-atur-iuran').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nominal = document.getElementById('setting-nominal').value;
+            const periode = document.getElementById('setting-periode').value;
+            db.ref('pengaturan/iuran').set({ nominal, periode }, (err) => {
+                if(!err) alert("Aturan iuran berhasil diperbarui!");
+            });
+        });
+
+        // Simpan Amplop Jumat
+        document.getElementById('form-amplop').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const keterangan = document.getElementById('amplop-ket').value;
+            const tanggalInput = document.getElementById('amplop-tgl').value;
+            const tanggal = new Date(tanggalInput).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            const jumlah = document.getElementById('amplop-jumlah').value;
+
+            db.ref('amplop_jumat').push({ keterangan, tanggal, jumlah: Number(jumlah) }, (err) => {
+                if(!err) {
+                    alert("Data amplop berhasil dimasukkan!");
+                    document.getElementById('form-amplop').reset();
+                    document.getElementById('amplop-tgl').valueAsDate = new Date();
+                }
+            });
+        });
+
+        // Simpan Pengeluaran
+        document.getElementById('form-keluar').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const keterangan = document.getElementById('keluar-ket').value;
+            const jumlah = document.getElementById('keluar-jumlah').value;
+            const tanggal = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            db.ref('pengeluaran').push({ keterangan, jumlah: Number(jumlah), tanggal }, (err) => {
+                if(!err) {
+                    alert("Pengeluaran berhasil dicatat!");
+                    document.getElementById('form-keluar').reset();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
