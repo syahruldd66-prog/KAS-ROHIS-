@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran Kas - Rohis SMKN 1 Wajo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase App & Realtime Database SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+<body class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-950 text-white font-sans min-h-screen p-4 flex flex-col justify-between">
+
+    <!-- Header Navigasi -->
+    <div class="max-w-md mx-auto w-full flex justify-between items-center mb-4">
+        <a href="index.html" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-xs font-semibold transition backdrop-blur-md">
+            ← Kembali
+        </a>
+        <h1 class="text-sm font-bold tracking-wider text-emerald-200">PEMBAYARAN ONLINE</h1>
+        <div class="w-16"></div> <!-- Spacer -->
+    </div>
+
+    <!-- Konten Utama -->
+    <div class="max-w-md mx-auto w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl shadow-2xl p-6 space-y-6">
+        
+        <!-- Informasi Tujuan Transfer -->
+        <div class="text-center bg-white/5 p-4 rounded-2xl border border-white/10">
+            <p class="text-xs text-emerald-300 font-medium mb-1">Transfer Kas via DANA</p>
+            <div class="text-2xl font-black tracking-widest text-white my-1">082293795296</div>
+            <p class="text-[10px] text-gray-300">A/N Bendahara Rohis SMKN 1 Wajo</p>
+            
+            <button onclick="salinNomor()" class="mt-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-1.5 px-4 rounded-lg shadow transition">
+                📋 Salin Nomor DANA
+            </button>
+        </div>
+
+        <!-- Form Konfirmasi Pembayaran -->
+        <div class="space-y-4">
+            <h2 class="text-sm font-bold text-emerald-200 uppercase tracking-wide border-b border-white/10 pb-2">
+                Form Konfirmasi Pembayaran
+            </h2>
+            
+            <form id="form-konfirmasi" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-emerald-100 mb-1">Nama Lengkap</label>
+                    <input type="text" id="bayar-nama" placeholder="Contoh: Ahmad Fauzi" required class="w-full bg-white/5 border border-white/20 rounded-xl p-2.5 text-sm text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-400 outline-none">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-medium text-emerald-100 mb-1">Kelas</label>
+                    <input type="text" id="bayar-kelas" placeholder="Contoh: X TKJ 1" required class="w-full bg-white/5 border border-white/20 rounded-xl p-2.5 text-sm text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-400 outline-none">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-medium text-emerald-100 mb-1">Jumlah Bayar (Rp)</label>
+                    <input type="number" id="bayar-jumlah" placeholder="Contoh: 5000" required class="w-full bg-white/5 border border-white/20 rounded-xl p-2.5 text-sm text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-400 outline-none">
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-medium text-emerald-100 mb-1">Tanggal Transfer</label>
+                    <input type="date" id="bayar-tgl" required class="w-full bg-white/5 border border-white/20 rounded-xl p-2.5 text-sm text-white focus:ring-2 focus:ring-emerald-400 outline-none">
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-emerald-950 font-black py-3 rounded-xl shadow-lg transition transform active:scale-95">
+                    Kirim Konfirmasi Pembayaran
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center text-[10px] text-emerald-300/50 mt-6">
+        &copy; 2026 Rohis SMKN 1 Wajo
+    </div>
+
+    <script>
+        // Konfigurasi Firebase dengan URL Realtime Database Anda
+        const firebaseConfig = { 
+            databaseURL: "https://rohis-kas-default-rtdb.asia-southeast1.firebasedatabase.app/" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // Set tanggal otomatis ke hari ini saat halaman dibuka
+        document.getElementById('bayar-tgl').valueAsDate = new Date();
+
+        // Fungsi Salin Nomor DANA
+        function salinNomor() {
+            navigator.clipboard.writeText("082293795296");
+            alert("Nomor DANA berhasil disalin: 082293795296");
+        }
+
+        // Kirim data konfirmasi ke Realtime Database secara real-time
+        document.getElementById('form-konfirmasi').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const nama = document.getElementById('bayar-nama').value;
+            const kelas = document.getElementById('bayar-kelas').value;
+            const jumlah = document.getElementById('bayar-jumlah').value;
+            const tanggalInput = document.getElementById('bayar-tgl').value;
+            
+            // Format tanggal jadi format Indonesia
+            const tanggal = new Date(tanggalInput).toLocaleDateString('id-ID', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+            });
+
+            // Kirim ke node 'pembayaran' di Firebase
+            db.ref('pembayaran').push({ 
+                nama: nama, 
+                kelas: kelas, 
+                jumlah: Number(jumlah), 
+                tanggal: tanggal 
+            }, (err) => {
+                if (!err) {
+                    alert("Konfirmasi pembayaran berhasil dikirim! Data akan langsung masuk ke sistem pengurus.");
+                    document.getElementById('form-konfirmasi').reset();
+                    document.getElementById('bayar-tgl').valueAsDate = new Date();
+                } else {
+                    alert("Gagal mengirim konfirmasi. Periksa koneksi internet Anda.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
