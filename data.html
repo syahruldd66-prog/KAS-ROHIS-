@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rekap Keuangan - Kas Rohis SMKN 1 Wajo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+</head>
+<body class="bg-gray-100 font-sans min-h-screen pb-10">
+
+    <nav class="bg-emerald-900 text-white p-4 shadow-md flex justify-between items-center">
+        <a href="index.html" class="text-sm bg-emerald-800 hover:bg-emerald-700 px-3 py-1 rounded-lg transition">← Kembali</a>
+        <h1 class="font-bold text-base md:text-lg">Rekap Keuangan Rohis</h1>
+        <a href="admin.html" class="text-xs bg-amber-500 hover:bg-amber-400 text-emerald-950 font-bold px-3 py-1.5 rounded-lg transition">⚙️ Admin</a>
+    </nav>
+
+    <div class="max-w-4xl mx-auto p-4 mt-4 space-y-6">
+        
+        <div class="bg-emerald-50 border border-emerald-300 rounded-2xl p-4 shadow-sm flex justify-between items-center">
+            <div>
+                <p class="text-xs text-emerald-700 font-semibold uppercase tracking-wider">Ketentuan Iuran Aktif</p>
+                <h3 id="info-iuran" class="text-lg font-extrabold text-emerald-900">Memuat aturan iuran...</h3>
+            </div>
+            <div class="text-2xl bg-emerald-200 p-2.5 rounded-xl">📌</div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-emerald-600">
+                <p class="text-gray-500 text-xs">Total Kas Masuk</p>
+                <h3 id="total-masuk" class="text-2xl font-black text-emerald-600">Rp 0</h3>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-red-500">
+                <p class="text-gray-500 text-xs">Total Pengeluaran</p>
+                <h3 id="total-keluar" class="text-2xl font-black text-red-500">Rp 0</h3>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-blue-500">
+                <p class="text-gray-500 text-xs">Saldo Akhir</p>
+                <h3 id="saldo-akhir" class="text-2xl font-black text-blue-600">Rp 0</h3>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm p-5">
+            <h3 class="font-bold text-base text-emerald-900 mb-3 flex items-center gap-2">
+                <span>📋</span> Riwayat Pembayaran Kas Anggota
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-emerald-100/70 text-emerald-900 text-xs">
+                            <th class="p-2.5 rounded-l-xl">Nama Anggota</th>
+                            <th class="p-2.5">Kelas</th>
+                            <th class="p-2.5">Jumlah</th>
+                            <th class="p-2.5 rounded-r-xl">Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-pembayaran" class="text-xs divide-y divide-gray-100">
+                        <tr><td colspan="4" class="p-4 text-center text-gray-400">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm p-5">
+            <h3 class="font-bold text-base text-amber-900 mb-3 flex items-center gap-2">
+                <span>✉️</span> Riwayat Infaq Amplop Jumat / Sholat Dzuhur
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-amber-100/70 text-amber-900 text-xs">
+                            <th class="p-2.5 rounded-l-xl">Keterangan / Sesi</th>
+                            <th class="p-2.5">Tanggal Kegiatan</th>
+                            <th class="p-2.5 rounded-r-xl">Jumlah Perolehan</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-amplop" class="text-xs divide-y divide-gray-100">
+                        <tr><td colspan="3" class="p-4 text-center text-gray-400">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm p-5">
+            <h3 class="font-bold text-base text-red-900 mb-3 flex items-center gap-2">
+                <span>💸</span> Daftar Pengeluaran Kas
+            </h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-red-100/70 text-red-900 text-xs">
+                            <th class="p-2.5 rounded-l-xl">Keperluan</th>
+                            <th class="p-2.5">Jumlah Biaya</th>
+                            <th class="p-2.5 rounded-r-xl">Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-pengeluaran" class="text-xs divide-y divide-gray-100">
+                        <tr><td colspan="3" class="p-4 text-center text-gray-400">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const firebaseConfig = { 
+            databaseURL: "https://rohis-kas-default-rtdb.asia-southeast1.firebasedatabase.app/" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let totalKasMasuk = 0;
+        let totalKasKeluar = 0;
+
+        // Ambil Pengaturan Iuran
+        db.ref('pengaturan/iuran').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if(data) {
+                document.getElementById('info-iuran').innerText = `Rp ${Number(data.nominal).toLocaleString()} / ${data.periode}`;
+            } else {
+                document.getElementById('info-iuran').innerText = "Belum diatur oleh admin";
+            }
+        });
+
+        // Ambil Data Pembayaran Anggota Real-Time
+        db.ref('pembayaran').on('value', (snapshot) => {
+            const tbody = document.getElementById('tabel-pembayaran');
+            tbody.innerHTML = '';
+            
+            if (!snapshot.exists()) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400">Belum ada data pembayaran.</td></tr>`;
+            } else {
+                snapshot.forEach((child) => {
+                    const data = child.val();
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-2.5 font-semibold text-gray-800">${data.nama}</td>
+                            <td class="p-2.5 text-gray-600">${data.kelas}</td>
+                            <td class="p-2.5 text-emerald-600 font-bold">Rp ${Number(data.jumlah).toLocaleString()}</td>
+                            <td class="p-2.5 text-gray-500">${data.tanggal}</td>
+                        </tr>
+                    `;
+                });
+            }
+            kalkulasiTotalMasuk();
+        });
+
+        // Ambil Data Amplop Jumat Real-Time
+        db.ref('amplop_jumat').on('value', (snapshot) => {
+            const tbody = document.getElementById('tabel-amplop');
+            tbody.innerHTML = '';
+            
+            if (!snapshot.exists()) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400">Belum ada data amplop.</td></tr>`;
+            } else {
+                snapshot.forEach((child) => {
+                    const data = child.val();
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-2.5 font-semibold text-gray-800">${data.keterangan}</td>
+                            <td class="p-2.5 text-gray-600">${data.tanggal}</td>
+                            <td class="p-2.5 text-amber-600 font-bold">Rp ${Number(data.jumlah).toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            }
+            kalkulasiTotalMasuk();
+        });
+
+        // Ambil Data Pengeluaran Real-Time
+        db.ref('pengeluaran').on('value', (snapshot) => {
+            const tbody = document.getElementById('tabel-pengeluaran');
+            tbody.innerHTML = '';
+            totalKasKeluar = 0;
+
+            if (!snapshot.exists()) {
+                tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-400">Belum ada pengeluaran kas.</td></tr>`;
+            } else {
+                snapshot.forEach((child) => {
+                    const data = child.val();
+                    totalKasKeluar += Number(data.jumlah);
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-2.5 font-semibold text-gray-800">${data.keterangan}</td>
+                            <td class="p-2.5 text-red-600 font-bold">Rp ${Number(data.jumlah).toLocaleString()}</td>
+                            <td class="p-2.5 text-gray-500">${data.tanggal}</td>
+                        </tr>
+                    `;
+                });
+            }
+            document.getElementById('total-keluar').innerText = `Rp ${totalKasKeluar.toLocaleString()}`;
+            hitungSaldoAkhir();
+        });
+
+        function kalkulasiTotalMasuk() {
+            let bayarTotal = 0;
+            let amplopTotal = 0;
+
+            db.ref('pembayaran').once('value', (snap) => {
+                snap.forEach((c) => { bayarTotal += Number(c.val().jumlah); });
+                
+                db.ref('amplop_jumat').once('value', (snap2) => {
+                    snap2.forEach((c2) => { amplopTotal += Number(c2.val().jumlah); });
+                    
+                    totalKasMasuk = bayarTotal + amplopTotal;
+                    document.getElementById('total-masuk').innerText = `Rp ${totalKasMasuk.toLocaleString()}`;
+                    hitungSaldoAkhir();
+                });
+            });
+        }
+
+        function hitungSaldoAkhir() {
+            const saldoAkhir = totalKasMasuk - totalKasKeluar;
+            const el = document.getElementById('saldo-akhir');
+            el.innerText = `Rp ${saldoAkhir.toLocaleString()}`;
+            el.className = saldoAkhir >= 0 ? "text-2xl font-black text-blue-600" : "text-2xl font-black text-red-600";
+        }
+    </script>
+</body>
+</html>
